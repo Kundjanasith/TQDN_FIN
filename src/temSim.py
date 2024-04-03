@@ -29,7 +29,7 @@ class TradingEnv(gym.Env):
 
     def __init__(self, data, marketSymbol, startingDate, endingDate, money, stateLength=30,
                  transactionCosts=0, startingPoint=0):
-        self.data = data
+        self.data = data.copy()
         # Interpolate in case of missing data
         self.data.replace(0.0, np.nan, inplace=True)
         self.data.interpolate(method='linear', limit=5, limit_area='inside', inplace=True)
@@ -357,4 +357,4 @@ class Simulator:
         strategyModule = importlib.import_module(str(strategy))
         className = getattr(strategyModule, strategy)
         tradingStrategy = className(self.observationSpace, self.actionSpace)
-        trainingEnv = tradingStrategy.training(trainingEnv, trainingParameters=trainingParameters)
+        trainingEnv = tradingStrategy.training(trainingEnv, trainingParameters=trainingParameters,verbose=True)
