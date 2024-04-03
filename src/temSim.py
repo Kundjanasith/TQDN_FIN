@@ -346,7 +346,7 @@ class Simulator:
         self.observationSpace = 1 + (self.stateLength-1)*4
         self.actionSpace = 2
         self.percentageCosts = [0, 0.1, 0.2]
-        self.transactionCosts = self.percentageCosts[1]/100
+        self.transactionCosts = self.percentageCosts[0]/100
 
     def run(self):
         strategy = 'TDQN'
@@ -358,3 +358,8 @@ class Simulator:
         className = getattr(strategyModule, strategy)
         tradingStrategy = className(self.observationSpace, self.actionSpace)
         trainingEnv = tradingStrategy.training(trainingEnv, trainingParameters=trainingParameters,verbose=True)
+        fileName = 'tem'
+        tradingStrategy.saveModel(fileName)
+        # testingEnv = TradingEnv(stock, self.splitingDate, self.endingDate, self.money, self.stateLength, self.transactionCosts)
+        # testingEnv = tradingStrategy.testing(trainingEnv, testingEnv, rendering=True)
+        # self.plotEntireTrading(trainingEnv, testingEnv)
