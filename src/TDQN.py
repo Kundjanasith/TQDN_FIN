@@ -655,11 +655,11 @@ class TDQN:
             # Testing performance
             marketSymbol = trainingEnv.marketSymbol
             startingDate = trainingEnv.endingDate
-            endingDate = '2020-1-1'
+            endingDate = trainingEnv.data['dateTime'][len(trainingEnv.data)-1]
             money = trainingEnv.data['Money'][0]
             stateLength = trainingEnv.stateLength
             transactionCosts = trainingEnv.transactionCosts
-            testingEnv = TradingEnv(marketSymbol, startingDate, endingDate, money, stateLength, transactionCosts)
+            testingEnv = TradingEnv(trainingEnv.data, marketSymbol, startingDate, endingDate, money, stateLength, transactionCosts)
             performanceTest = []
 
         try:
@@ -900,13 +900,14 @@ class TDQN:
         performanceTest = np.zeros((trainingParameters[0], iterations))
 
         # Initialization of the testing trading environment
+        
         marketSymbol = trainingEnv.marketSymbol
         startingDate = trainingEnv.endingDate
-        endingDate = '2020-1-1'
+        endingDate = trainingEnv.data['dateTime'][len(trainingEnv.data)-1]
         money = trainingEnv.data['Money'][0]
         stateLength = trainingEnv.stateLength
         transactionCosts = trainingEnv.transactionCosts
-        testingEnv = TradingEnv(marketSymbol, startingDate, endingDate, money, stateLength, transactionCosts)
+        testingEnv = TradingEnv(trainingEnv, marketSymbol, startingDate, endingDate, money, stateLength, transactionCosts)
 
         # Print the hardware selected for the training of the Deep Neural Network (either CPU or GPU)
         print("Hardware selected for training: " + str(self.device))
