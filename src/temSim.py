@@ -33,10 +33,10 @@ class TradingEnv(gym.Env):
         self.data = data.copy()
         # Interpolate in case of missing data
         self.data.replace(0.0, np.nan, inplace=True)
-        self.data.interpolate(method='linear', limit=5, limit_area='inside', inplace=True)
-        self.data.fillna(method='ffill', inplace=True)
-        self.data.fillna(method='bfill', inplace=True)
-        self.data.fillna(0, inplace=True)
+        # self.data.interpolate(method='linear', limit=5, limit_area='inside', inplace=True)
+        # self.data.fillna(method='ffill', inplace=True)
+        # self.data.fillna(method='bfill', inplace=True)
+        # self.data.fillna(0, inplace=True)
         
         # Set the trading activity dataframe
         self.data['Position'] = 0
@@ -338,11 +338,15 @@ class TradingEnv(gym.Env):
 class Simulator:
     def __init__(self, filepath=None):
         self.data = pd.read_csv(filepath)
+        # print(self.data)
+        self.data['dateTime'] = pd.to_datetime(self.data['dateTime'])
+        # print((self.data['dateTime'][0] - self.data['dateTime'][9]).days)
         self.startingDate = self.data['dateTime'][0]
         self.splitingDate = '2023-01-01'
         self.endingDate = self.data['dateTime'][len(self.data)-1]
         self.money = 100000
-        self.numberOfEpisodes = 50
+        # self.numberOfEpisodes = 50
+        self.numberOfEpisodes = 10
         self.stateLength = 30
         self.observationSpace = 1 + (self.stateLength-1)*4
         self.actionSpace = 2
@@ -358,54 +362,65 @@ class Simulator:
         strategyModule = importlib.import_module(str(strategy))
         className = getattr(strategyModule, strategy)
         tradingStrategy = className(self.observationSpace, self.actionSpace)
-        trainingEnv = tradingStrategy.training(trainingEnv, trainingParameters=trainingParameters,verbose=True, plotTraining=True)
+        # trainingEnv = tradingStrategy.training(trainingEnv, trainingParameters=trainingParameters,verbose=True, plotTraining=True)
         fileName = 'tem'
-        tradingStrategy.saveModel(fileName)
+        # tradingStrategy.saveModel(fileName)
         tradingStrategy.loadModel(fileName)
         testingEnv = TradingEnv(self.data, stock, self.splitingDate, self.endingDate, self.money, self.stateLength, self.transactionCosts)
-        testingEnv = tradingStrategy.testing(trainingEnv, testingEnv, rendering=True, showPerformance=True)
-        self.plotEntireTrading(trainingEnv, testingEnv)
+        testingEnv = tradingStrategy.testing(trainingEnv, testingEnv, rendering=False, showPerformance=True)
+        print('training')
+        print(trainingEnv.data.columns,len(trainingEnv.data))
+        print('testing')
+        print(testingEnv.data.columns,len(testingEnv.data))
+        # self.plotEntireTrading(trainingEnv, testingEnv)
+        # print(trainingEnv.data['Action'])
+        print(np.unique(trainingEnv.data['Action']))
+        # print(testingEnv.data['Action'])
+        print(np.unique(testingEnv.data['Action']))
+        plt.plot(trainingEnv.data['dateTime'],trainingEnv.data['Action'])
+        # plt.plot(testingEnv.data['dateTime'],testingEnv.data['Action'])
+        plt.savefig('x.png')
 
-    def plotEntireTrading(self, trainingEnv, testingEnv):
-        # print(type(trainingEnv.data))
-        # print(type(testingEnv.data))
-        ratio = trainingEnv.data['Money'][len(trainingEnv.data)-1]/testingEnv.data['Money'][0]
-        testingEnv.data['Money'] = ratio * testingEnv.data['Money']
+    # def plotEntireTrading(self, trainingEnv, testingEnv):
+    #     # print(type(trainingEnv.data))
+    #     # print(type(testingEnv.data))
+    #     ratio = trainingEnv.data['Money'][len(trainingEnv.data)-1]/testingEnv.data['Money'][0]
+    #     testingEnv.data['Money'] = ratio * testingEnv.data['Money']
 
-        # Concatenation of the training and testing trading dataframes
-        dataframes = [trainingEnv.data, testingEnv.data]
-        data = pd.concat(dataframes)
+    #     # Concatenation of the training and testing trading dataframes
+    #     dataframes = [trainingEnv.data, testingEnv.data]
+    #     data = pd.concat(dataframes)
 
-        # Set the Matplotlib figure and subplots
-        fig = plt.figure(figsize=(10, 8))
-        ax1 = fig.add_subplot(211, ylabel='Price', xlabel='Time')
-        ax2 = fig.add_subplot(212, ylabel='Capital', xlabel='Time', sharex=ax1)
+    #     # Set the Matplotlib figure and subplots
+    #     fig = plt.figure(figsize=(10, 8))
+    #     ax1 = fig.add_subplot(211, ylabel='Price', xlabel='Time')
+    #     ax2 = fig.add_subplot(212, ylabel='Capital', xlabel='Time', sharex=ax1)
 
-        # Plot the first graph -> Evolution of the stock market price
-        trainingEnv.data['Close'].plot(ax=ax1, color='blue', lw=2)
-        testingEnv.data['Close'].plot(ax=ax1, color='blue', lw=2, label='_nolegend_') 
-        ax1.plot(data.loc[data['Action'] == 1.0].index, 
-                 data['Close'][data['Action'] == 1.0],
-                 '^', markersize=5, color='green')   
-        ax1.plot(data.loc[data['Action'] == -1.0].index, 
-                 data['Close'][data['Action'] == -1.0],
-                 'v', markersize=5, color='red')
+    #     # Plot the first graph -> Evolution of the stock market price
+    #     trainingEnv.data['Close'].plot(ax=ax1, color='blue', lw=2)
+    #     testingEnv.data['Close'].plot(ax=ax1, color='blue', lw=2, label='_nolegend_') 
+    #     ax1.plot(data.loc[data['Action'] == 1.0].index, 
+    #              data['Close'][data['Action'] == 1.0],
+    #              '^', markersize=5, color='green')   
+    #     ax1.plot(data.loc[data['Action'] == -1.0].index, 
+    #              data['Close'][data['Action'] == -1.0],
+    #              'v', markersize=5, color='red')
         
-        # Plot the second graph -> Evolution of the trading capital
-        trainingEnv.data['Money'].plot(ax=ax2, color='blue', lw=2)
-        testingEnv.data['Money'].plot(ax=ax2, color='blue', lw=2, label='_nolegend_') 
-        ax2.plot(data.loc[data['Action'] == 1.0].index, 
-                 data['Money'][data['Action'] == 1.0],
-                 '^', markersize=5, color='green')   
-        ax2.plot(data.loc[data['Action'] == -1.0].index, 
-                 data['Money'][data['Action'] == -1.0],
-                 'v', markersize=5, color='red')
+    #     # Plot the second graph -> Evolution of the trading capital
+    #     trainingEnv.data['Money'].plot(ax=ax2, color='blue', lw=2)
+    #     testingEnv.data['Money'].plot(ax=ax2, color='blue', lw=2, label='_nolegend_') 
+    #     ax2.plot(data.loc[data['Action'] == 1.0].index, 
+    #              data['Money'][data['Action'] == 1.0],
+    #              '^', markersize=5, color='green')   
+    #     ax2.plot(data.loc[data['Action'] == -1.0].index, 
+    #              data['Money'][data['Action'] == -1.0],
+    #              'v', markersize=5, color='red')
 
-        # Plot the vertical line seperating the training and testing datasets
-        ax1.axvline(pd.Timestamp(self.splitingDate), color='black', linewidth=2.0)
-        ax2.axvline(pd.Timestamp(self.splitingDate), color='black', linewidth=2.0)
+    #     # Plot the vertical line seperating the training and testing datasets
+    #     ax1.axvline(pd.Timestamp(self.splitingDate), color='black', linewidth=2.0)
+    #     ax2.axvline(pd.Timestamp(self.splitingDate), color='black', linewidth=2.0)
         
-        # Generation of the two legends and plotting
-        ax1.legend(["Price", "Long",  "Short", "Train/Test separation"])
-        ax2.legend(["Capital", "Long", "Short", "Train/Test separation"])
-        plt.savefig(''.join(['Figures/', str(trainingEnv.marketSymbol), '_TrainingTestingRendering', '.png'])) 
+    #     # Generation of the two legends and plotting
+    #     ax1.legend(["Price", "Long",  "Short", "Train/Test separation"])
+    #     ax2.legend(["Capital", "Long", "Short", "Train/Test separation"])
+    #     plt.savefig(''.join(['Figures/', str(trainingEnv.marketSymbol), '_TrainingTestingRendering', '.png'])) 
