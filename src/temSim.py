@@ -362,9 +362,9 @@ class Simulator:
         strategyModule = importlib.import_module(str(strategy))
         className = getattr(strategyModule, strategy)
         tradingStrategy = className(self.observationSpace, self.actionSpace)
-        # trainingEnv = tradingStrategy.training(trainingEnv, trainingParameters=trainingParameters,verbose=True, plotTraining=True)
+        trainingEnv = tradingStrategy.training(trainingEnv, trainingParameters=trainingParameters,verbose=True, plotTraining=True)
         fileName = 'tem'
-        # tradingStrategy.saveModel(fileName)
+        tradingStrategy.saveModel(fileName)
         tradingStrategy.loadModel(fileName)
         testingEnv = TradingEnv(self.data, stock, self.splitingDate, self.endingDate, self.money, self.stateLength, self.transactionCosts)
         testingEnv = tradingStrategy.testing(trainingEnv, testingEnv, rendering=False, showPerformance=True)
