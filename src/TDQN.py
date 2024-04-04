@@ -73,7 +73,7 @@ rewardClipping = 1
 L2Factor = 0.000001
 
 # Default paramter related to the hardware acceleration (CUDA)
-GPUNumber = 0
+GPUNumber = 1
 
 
 
