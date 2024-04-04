@@ -97,15 +97,15 @@ class PerformanceEstimator:
         # self.data.index = pd.to_datetime(self.data.index,format="%Y-%m-%d",utc=True)
         # start = self.data.index[0].to_pydatetime()
         # end = self.data.index[len(self.data)-1].to_pydatetime() 
-        start = self.data['dateTime'][0].to_pydatetime()
-        end = self.data['dateTime'][len(self.data)-1].to_pydatetime() 
+        start = self.data.index[0].to_pydatetime()
+        end = self.data.index[len(self.data)-1].to_pydatetime() 
         # print(self.data) 
         print(start,end)  
         print(type(start),type(end))
            
         timeElapsed = end - start
         # print(timeElapsed) 
-        # timeElapsed = timeElapsed.days
+        timeElapsed = timeElapsed.days
         # print(timeElapsed.days) 
 
         # Compute the Annualized Return

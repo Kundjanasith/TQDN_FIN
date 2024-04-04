@@ -38,10 +38,10 @@ class TradingEnv(gym.Env):
             self.data = self.data.set_index(['Timestamp'])
         # Interpolate in case of missing data
         self.data.replace(0.0, np.nan, inplace=True)
-        # self.data.interpolate(method='linear', limit=5, limit_area='inside', inplace=True)
-        # self.data.fillna(method='ffill', inplace=True)
-        # self.data.fillna(method='bfill', inplace=True)
-        # self.data.fillna(0, inplace=True)
+        self.data.interpolate(method='linear', limit=5, limit_area='inside', inplace=True)
+        self.data.fillna(method='ffill', inplace=True)
+        self.data.fillna(method='bfill', inplace=True)
+        self.data.fillna(0, inplace=True)
         
         # Set the trading activity dataframe
         self.data['Position'] = 0
@@ -351,7 +351,7 @@ class Simulator:
         self.endingDate = self.data['dateTime'][len(self.data)-1]
         self.money = 100000
         # self.numberOfEpisodes = 50
-        self.numberOfEpisodes = 50
+        self.numberOfEpisodes = 5
         self.stateLength = 30
         self.observationSpace = 1 + (self.stateLength-1)*4
         self.actionSpace = 2
@@ -372,23 +372,23 @@ class Simulator:
         tradingStrategy.saveModel(fileName)
         tradingStrategy.loadModel(fileName)
         testingEnv = TradingEnv(self.data, stock, self.splitingDate, self.endingDate, self.money, self.stateLength, self.transactionCosts)
-        testingEnv = tradingStrategy.testing(trainingEnv, testingEnv, rendering=False, showPerformance=True)
+        testingEnv = tradingStrategy.testing(trainingEnv, testingEnv, rendering=True, showPerformance=True)
         print('training')
         print(trainingEnv.data.columns,len(trainingEnv.data))
         print('testing')
         print(testingEnv.data.columns,len(testingEnv.data))
-        # self.plotEntireTrading(trainingEnv, testingEnv)
+        self.plotEntireTrading(trainingEnv, testingEnv)
         # print(trainingEnv.data['Action'])
-        print(np.unique(trainingEnv.data['Action']))
+        # print(np.unique(trainingEnv.data['Action']))
         # print(testingEnv.data['Action'])
-        print(np.unique(testingEnv.data['Action']))
-        plt.subplot(121)
-        plt.plot(trainingEnv.data['dateTime'],trainingEnv.data['Action'])
-        plt.subplot(122)
-        plt.plot(testingEnv.data['dateTime'],testingEnv.data['Action'])
+        # print(np.unique(testingEnv.data['Action']))
+        # plt.subplot(121)
+        # plt.plot(trainingEnv.data.index,trainingEnv.data['Action'])
+        # plt.subplot(122)
+        # plt.plot(testingEnv.data.index,testingEnv.data['Action'])
         trainingEnv.data.to_csv('trainingEnv.csv')
         testingEnv.data.to_csv('testingEnv.csv')
-        plt.savefig('x.png')
+        # plt.savefig('x.png')
 
     # def plotEntireTrading(self, trainingEnv, testingEnv):
     #     # print(type(trainingEnv.data))
