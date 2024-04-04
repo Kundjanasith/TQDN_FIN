@@ -346,7 +346,7 @@ class Simulator:
         self.endingDate = self.data['dateTime'][len(self.data)-1]
         self.money = 100000
         # self.numberOfEpisodes = 50
-        self.numberOfEpisodes = 10
+        self.numberOfEpisodes = 100
         self.stateLength = 30
         self.observationSpace = 1 + (self.stateLength-1)*4
         self.actionSpace = 2
@@ -377,8 +377,12 @@ class Simulator:
         print(np.unique(trainingEnv.data['Action']))
         # print(testingEnv.data['Action'])
         print(np.unique(testingEnv.data['Action']))
+        plt.subplot(121)
         plt.plot(trainingEnv.data['dateTime'],trainingEnv.data['Action'])
-        # plt.plot(testingEnv.data['dateTime'],testingEnv.data['Action'])
+        plt.subplot(122)
+        plt.plot(testingEnv.data['dateTime'],testingEnv.data['Action'])
+        trainingEnv.data.to_csv('trainingEnv.csv')
+        testingEnv.data.to_csv('testingEnv.csv')
         plt.savefig('x.png')
 
     # def plotEntireTrading(self, trainingEnv, testingEnv):
