@@ -22,72 +22,16 @@ import pandas as pd
 ###############################################################################
 
 class PerformanceEstimator:
-    """
-    GOAL: Accurately estimating the performance of a trading strategy, by
-          computing many different performance indicators.
-        
-    VARIABLES: - data: Trading activity data from the trading environment.
-               - PnL: Profit & Loss (performance indicator).
-               - annualizedReturn: Annualized Return (performance indicator).
-               - annualizedVolatily: Annualized Volatility (performance indicator).
-               - profitability: Profitability (performance indicator).
-               - averageProfitLossRatio: Average Profit/Loss Ratio (performance indicator).
-               - sharpeRatio: Sharpe Ratio (performance indicator).
-               - sortinoRatio: Sortino Ratio (performance indicator).
-               - maxDD: Maximum Drawdown (performance indicator).
-               - maxDDD: Maximum Drawdown Duration (performance indicator).
-               - skewness: Skewness of the returns (performance indicator).
-          
-    METHODS:   -  __init__: Object constructor initializing some class variables. 
-               - computePnL: Compute the P&L.
-               - computeAnnualizedReturn: Compute the Annualized Return.
-               - computeAnnualizedVolatility: Compute the Annualized Volatility.
-               - computeProfitability: Computate both the Profitability and the Average Profit/Loss Ratio.
-               - computeSharpeRatio: Compute the Sharpe Ratio.
-               - computeSortinoRatio: Compute the Sortino Ratio.
-               - computeMaxDrawdown: Compute both the Maximum Drawdown and Maximum Drawdown Duration.
-               - computeSkewness: Compute the Skewness of the returns.
-               - computePerformance: Compute all the performance indicators.
-               - displayPerformance: Display the entire set of performance indicators in a table.
-    """
-
     def __init__(self, tradingData):
-        """
-        GOAL: Object constructor initializing the class variables. 
-        
-        INPUTS: - tradingData: Trading data from the trading strategy execution.
-        
-        OUTPUTS: /
-        """
-
         self.data = tradingData
 
 
     def computePnL(self):
-        """
-        GOAL: Compute the Profit & Loss (P&L) performance indicator, which
-              quantifies the money gained or lost during the trading activity.
-        
-        INPUTS: /
-        
-        OUTPUTS:    - PnL: Profit or loss (P&L) performance indicator.
-        """
-        
-        # Compute the PnL
         self.PnL = self.data["Money"][len(self.data)-1] - self.data["Money"][0]
         return self.PnL
     
 
     def computeAnnualizedReturn(self):
-        """
-        GOAL: Compute the yearly average profit or loss (in %), called
-              the Annualized Return performance indicator.
-        
-        INPUTS: /
-        
-        OUTPUTS:    - annualizedReturn: Annualized Return performance indicator.
-        """
-        
         # Compute the cumulative return over the entire trading horizon
         cumulativeReturn = self.data['Returns'].cumsum()
         cumulativeReturn = cumulativeReturn[len(cumulativeReturn)-1]
@@ -117,31 +61,11 @@ class PerformanceEstimator:
     
     
     def computeAnnualizedVolatility(self):
-        """
-        GOAL: Compute the Yearly Voltility of the returns (in %), which is
-              a measurement of the risk associated with the trading activity.
-        
-        INPUTS: /
-        
-        OUTPUTS:    - annualizedVolatily: Annualized Volatility performance indicator.
-        """
-        
-        # Compute the Annualized Volatility (252 trading days in 1 trading year)
         self.annualizedVolatily = 100 * np.sqrt(252) * self.data['Returns'].std()
         return self.annualizedVolatily
     
     
     def computeSharpeRatio(self, riskFreeRate=0):
-        """
-        GOAL: Compute the Sharpe Ratio of the trading activity, which is one of
-              the most suited performance indicator as it balances the brute
-              performance and the risk associated with a trading activity.
-        
-        INPUTS:     - riskFreeRate: Return of an investment with a risk null.
-        
-        OUTPUTS:    - sharpeRatio: Sharpe Ratio performance indicator.
-        """
-        
         # Compute the expected return
         expectedReturn = self.data['Returns'].mean()
         

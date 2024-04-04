@@ -1,37 +1,11 @@
-# coding=utf-8
-
-"""
-Goal: Implementing some data augmentation techniques for the stock market time series.
-Authors: Thibaut Théate and Damien Ernst
-Institution: University of Liège
-"""
-
-###############################################################################
-################################### Imports ###################################
-###############################################################################
-
 import copy
 import numpy as np
 
 from temSim import TradingEnv
-
-
-
-###############################################################################
-################################ Global variables #############################
-###############################################################################
-
-# Default ranges for the parameters of the data augmentation techniques 
 shiftRange = [0]
 stretchRange = [1]
 filterRange = [5]
 noiseRange = [0]
-
-
-
-###############################################################################
-############################# Class DataAugmentation ##########################
-###############################################################################
 
 class DataAugmentation:
     """

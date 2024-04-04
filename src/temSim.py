@@ -49,14 +49,6 @@ class TradingEnv(gym.Env):
 
 
     def reset(self):
-        """
-        GOAL: Perform a soft reset of the trading environment. 
-        
-        INPUTS: /    
-        
-        OUTPUTS: - state: RL state returned to the trading strategy.
-        """
-
         # Reset the trading activity dataframe
         self.data['Position'] = 0
         self.data['Action'] = 0
@@ -64,7 +56,6 @@ class TradingEnv(gym.Env):
         self.data['Cash'] = self.data['Cash'][0]
         self.data['Money'] = self.data['Holdings'] + self.data['Cash']
         self.data['Returns'] = 0.
-
         # Reset the RL variables common to every OpenAI gym environments
         self.state = [self.data['Close'][0:self.stateLength].tolist(),
                       self.data['Low'][0:self.stateLength].tolist(),
@@ -73,7 +64,6 @@ class TradingEnv(gym.Env):
                       [0]]
         self.reward = 0.
         self.done = 0
-
         # Reset additional variables related to the trading activity
         self.t = self.stateLength
         self.numberOfShares = 0
@@ -319,12 +309,13 @@ class Simulator:
         # print(self.data)
         self.data['dateTime'] = pd.to_datetime(self.data['dateTime'])
         # print((self.data['dateTime'][0] - self.data['dateTime'][9]).days)
-        self.startingDate = self.data['dateTime'][0]
+        # self.startingDate = self.data['dateTime'][0]
+        self.startingDate = '2020-01-01'
         self.splitingDate = '2023-01-01'
         self.endingDate = self.data['dateTime'][len(self.data)-1]
         self.money = 100000
         # self.numberOfEpisodes = 50
-        self.numberOfEpisodes = 5
+        self.numberOfEpisodes = 50
         self.stateLength = 30
         self.observationSpace = 1 + (self.stateLength-1)*4
         self.actionSpace = 2
@@ -363,46 +354,46 @@ class Simulator:
         testingEnv.data.to_csv('testingEnv.csv')
         # plt.savefig('x.png')
 
-    # def plotEntireTrading(self, trainingEnv, testingEnv):
-    #     # print(type(trainingEnv.data))
-    #     # print(type(testingEnv.data))
-    #     ratio = trainingEnv.data['Money'][len(trainingEnv.data)-1]/testingEnv.data['Money'][0]
-    #     testingEnv.data['Money'] = ratio * testingEnv.data['Money']
+    def plotEntireTrading(self, trainingEnv, testingEnv):
+        # print(type(trainingEnv.data))
+        # print(type(testingEnv.data))
+        ratio = trainingEnv.data['Money'][len(trainingEnv.data)-1]/testingEnv.data['Money'][0]
+        testingEnv.data['Money'] = ratio * testingEnv.data['Money']
 
-    #     # Concatenation of the training and testing trading dataframes
-    #     dataframes = [trainingEnv.data, testingEnv.data]
-    #     data = pd.concat(dataframes)
+        # Concatenation of the training and testing trading dataframes
+        dataframes = [trainingEnv.data, testingEnv.data]
+        data = pd.concat(dataframes)
 
-    #     # Set the Matplotlib figure and subplots
-    #     fig = plt.figure(figsize=(10, 8))
-    #     ax1 = fig.add_subplot(211, ylabel='Price', xlabel='Time')
-    #     ax2 = fig.add_subplot(212, ylabel='Capital', xlabel='Time', sharex=ax1)
+        # Set the Matplotlib figure and subplots
+        fig = plt.figure(figsize=(10, 8))
+        ax1 = fig.add_subplot(211, ylabel='Price', xlabel='Time')
+        ax2 = fig.add_subplot(212, ylabel='Capital', xlabel='Time', sharex=ax1)
 
-    #     # Plot the first graph -> Evolution of the stock market price
-    #     trainingEnv.data['Close'].plot(ax=ax1, color='blue', lw=2)
-    #     testingEnv.data['Close'].plot(ax=ax1, color='blue', lw=2, label='_nolegend_') 
-    #     ax1.plot(data.loc[data['Action'] == 1.0].index, 
-    #              data['Close'][data['Action'] == 1.0],
-    #              '^', markersize=5, color='green')   
-    #     ax1.plot(data.loc[data['Action'] == -1.0].index, 
-    #              data['Close'][data['Action'] == -1.0],
-    #              'v', markersize=5, color='red')
+        # Plot the first graph -> Evolution of the stock market price
+        trainingEnv.data['Close'].plot(ax=ax1, color='blue', lw=2)
+        testingEnv.data['Close'].plot(ax=ax1, color='blue', lw=2, label='_nolegend_') 
+        ax1.plot(data.loc[data['Action'] == 1.0].index, 
+                 data['Close'][data['Action'] == 1.0],
+                 '^', markersize=5, color='green')   
+        ax1.plot(data.loc[data['Action'] == -1.0].index, 
+                 data['Close'][data['Action'] == -1.0],
+                 'v', markersize=5, color='red')
         
-    #     # Plot the second graph -> Evolution of the trading capital
-    #     trainingEnv.data['Money'].plot(ax=ax2, color='blue', lw=2)
-    #     testingEnv.data['Money'].plot(ax=ax2, color='blue', lw=2, label='_nolegend_') 
-    #     ax2.plot(data.loc[data['Action'] == 1.0].index, 
-    #              data['Money'][data['Action'] == 1.0],
-    #              '^', markersize=5, color='green')   
-    #     ax2.plot(data.loc[data['Action'] == -1.0].index, 
-    #              data['Money'][data['Action'] == -1.0],
-    #              'v', markersize=5, color='red')
+        # Plot the second graph -> Evolution of the trading capital
+        trainingEnv.data['Money'].plot(ax=ax2, color='blue', lw=2)
+        testingEnv.data['Money'].plot(ax=ax2, color='blue', lw=2, label='_nolegend_') 
+        ax2.plot(data.loc[data['Action'] == 1.0].index, 
+                 data['Money'][data['Action'] == 1.0],
+                 '^', markersize=5, color='green')   
+        ax2.plot(data.loc[data['Action'] == -1.0].index, 
+                 data['Money'][data['Action'] == -1.0],
+                 'v', markersize=5, color='red')
 
-    #     # Plot the vertical line seperating the training and testing datasets
-    #     ax1.axvline(pd.Timestamp(self.splitingDate), color='black', linewidth=2.0)
-    #     ax2.axvline(pd.Timestamp(self.splitingDate), color='black', linewidth=2.0)
+        # Plot the vertical line seperating the training and testing datasets
+        ax1.axvline(pd.Timestamp(self.splitingDate), color='black', linewidth=2.0)
+        ax2.axvline(pd.Timestamp(self.splitingDate), color='black', linewidth=2.0)
         
-    #     # Generation of the two legends and plotting
-    #     ax1.legend(["Price", "Long",  "Short", "Train/Test separation"])
-    #     ax2.legend(["Capital", "Long", "Short", "Train/Test separation"])
-    #     plt.savefig(''.join(['Figures/', str(trainingEnv.marketSymbol), '_TrainingTestingRendering', '.png'])) 
+        # Generation of the two legends and plotting
+        ax1.legend(["Price", "Long",  "Short", "Train/Test separation"])
+        ax2.legend(["Capital", "Long", "Short", "Train/Test separation"])
+        plt.savefig(''.join(['Figures/', str(trainingEnv.marketSymbol), '_TrainingTestingRendering', '.png'])) 
