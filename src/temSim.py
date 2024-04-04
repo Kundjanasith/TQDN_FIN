@@ -6,30 +6,7 @@ import matplotlib.pyplot as plt
 import sys
 
 class TradingEnv(gym.Env):
-    """
-    GOAL: Implement a custom trading environment compatible with OpenAI Gym.
-    
-    VARIABLES:  - data: Dataframe monitoring the trading activity.
-                - state: RL state to be returned to the RL agent.
-                - reward: RL reward to be returned to the RL agent.
-                - done: RL episode termination signal.
-                - t: Current trading time step.
-                - marketSymbol: Stock market symbol.
-                - startingDate: Beginning of the trading horizon.
-                - endingDate: Ending of the trading horizon.
-                - stateLength: Number of trading time steps included in the state.
-                - numberOfShares: Number of shares currently owned by the agent.
-                - transactionCosts: Transaction costs associated with the trading
-                                    activity (e.g. 0.01 is 1% of loss).
-                                
-    METHODS:    - __init__: Object constructor initializing the trading environment.
-                - reset: Perform a soft reset of the trading environment.
-                - step: Transition to the next trading time step.
-                - render: Illustrate graphically the trading environment.
-    """
-
-    def __init__(self, data, marketSymbol, startingDate, endingDate, money, stateLength=30,
-                 transactionCosts=0, startingPoint=0):
+    def __init__(self, data, marketSymbol, startingDate, endingDate, money, stateLength=30, transactionCosts=0, startingPoint=0):
         self.data = data.copy()
         if 'dateTime' in self.data.columns:
             self.data = self.data[['dateTime','Open','High','Low','Close','Volume']]
@@ -42,7 +19,6 @@ class TradingEnv(gym.Env):
         self.data.fillna(method='ffill', inplace=True)
         self.data.fillna(method='bfill', inplace=True)
         self.data.fillna(0, inplace=True)
-        
         # Set the trading activity dataframe
         self.data['Position'] = 0
         self.data['Action'] = 0
@@ -50,7 +26,6 @@ class TradingEnv(gym.Env):
         self.data['Cash'] = float(money)
         self.data['Money'] = self.data['Holdings'] + self.data['Cash']
         self.data['Returns'] = 0.
-
         # Set the RL variables common to every OpenAI gym environments
         self.state = [self.data['Close'][0:stateLength].tolist(),
                       self.data['Low'][0:stateLength].tolist(),
@@ -59,7 +34,6 @@ class TradingEnv(gym.Env):
                       [0]]
         self.reward = 0.
         self.done = 0
-
         # Set additional variables related to the trading activity
         self.marketSymbol = marketSymbol
         self.startingDate = startingDate
@@ -69,7 +43,6 @@ class TradingEnv(gym.Env):
         self.numberOfShares = 0
         self.transactionCosts = transactionCosts
         self.epsilon = 0.1
-
         # If required, set a custom starting point for the trading activity
         if startingPoint:
             self.setStartingPoint(startingPoint)
