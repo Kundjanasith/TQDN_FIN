@@ -14,7 +14,7 @@ import numpy as np
 
 from tabulate import tabulate
 from matplotlib import pyplot as plt
-
+import pandas as pd
 
 
 ###############################################################################
@@ -74,7 +74,7 @@ class PerformanceEstimator:
         """
         
         # Compute the PnL
-        self.PnL = self.data["Money"][-1] - self.data["Money"][0]
+        self.PnL = self.data["Money"][len(self.data)-1] - self.data["Money"][0]
         return self.PnL
     
 
@@ -90,11 +90,15 @@ class PerformanceEstimator:
         
         # Compute the cumulative return over the entire trading horizon
         cumulativeReturn = self.data['Returns'].cumsum()
-        cumulativeReturn = cumulativeReturn[-1]
+        cumulativeReturn = cumulativeReturn[len(cumulativeReturn)-1]
         
         # Compute the time elapsed (in days)
+        # print(self.data)
+        self.data.index = pd.to_datetime(self.data.index,format="%Y-%m-%d",utc=True)
         start = self.data.index[0].to_pydatetime()
-        end = self.data.index[-1].to_pydatetime()     
+        end = self.data.index[len(self.data)-1].to_pydatetime()     
+        # start = self.data['dateTime'][0].to_pydatetime()
+        # end = self.data['dateTime'][len(self.data)-1].to_pydatetime()    
         timeElapsed = end - start
         timeElapsed = timeElapsed.days
 
