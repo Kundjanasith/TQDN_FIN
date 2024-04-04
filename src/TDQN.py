@@ -774,7 +774,7 @@ class TDQN:
             analyser.displayPerformance('TDQN')
         
         # Closing of the tensorboard writer
-        self.writer.close()
+        # self.writer.close()
         
         return trainingEnv
 
