@@ -27,7 +27,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.autograd as autograd
 import torch.nn.functional as F
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 
 from tradingPerformance import PerformanceEstimator
 from dataAugmentation import DataAugmentation
@@ -733,14 +733,14 @@ class TDQN:
                     analyser = PerformanceEstimator(trainingEnv.data)
                     performance = analyser.computeSharpeRatio()
                     performanceTrain.append(performance)
-                    self.writer.add_scalar('Training performance (Sharpe Ratio)', performance, episode)
+                    # self.writer.add_scalar('Training performance (Sharpe Ratio)', performance, episode)
                     trainingEnv.reset()
                     # Testing set performance
                     testingEnv = self.testing(trainingEnv, testingEnv)
                     analyser = PerformanceEstimator(testingEnv.data)
                     performance = analyser.computeSharpeRatio()
                     performanceTest.append(performance)
-                    self.writer.add_scalar('Testing performance (Sharpe Ratio)', performance, episode)
+                    # self.writer.add_scalar('Testing performance (Sharpe Ratio)', performance, episode)
                     testingEnv.reset()
         
         except KeyboardInterrupt:
@@ -971,11 +971,11 @@ class TDQN:
                     trainingEnv = self.testing(trainingEnv, trainingEnv)
                     analyser = PerformanceEstimator(trainingEnv.data)
                     performanceTrain[episode][iteration] = analyser.computeSharpeRatio()
-                    self.writer.add_scalar('Training performance (Sharpe Ratio)', performanceTrain[episode][iteration], episode)     
+                    # self.writer.add_scalar('Training performance (Sharpe Ratio)', performanceTrain[episode][iteration], episode)     
                     testingEnv = self.testing(trainingEnv, testingEnv)
                     analyser = PerformanceEstimator(testingEnv.data)
                     performanceTest[episode][iteration] = analyser.computeSharpeRatio()
-                    self.writer.add_scalar('Testing performance (Sharpe Ratio)', performanceTest[episode][iteration], episode)
+                    # self.writer.add_scalar('Testing performance (Sharpe Ratio)', performanceTest[episode][iteration], episode)
 
                 # Restore the initial state of the intelligent RL agent
                 if iteration < (iterations-1):
@@ -1033,7 +1033,7 @@ class TDQN:
         #plt.show()
 
         # Closing of the tensorboard writer
-        self.writer.close()
+        # self.writer.close()
         
         return trainingEnv
 
