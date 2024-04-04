@@ -1,64 +1,30 @@
 # coding=utf-8
 
-"""
-Goal: Accurately estimating the performance of a trading strategy.
-Authors: Thibaut Théate and Damien Ernst
-Institution: University of Liège
-"""
-
-###############################################################################
-################################### Imports ###################################
-###############################################################################
-
 import numpy as np
-
 from tabulate import tabulate
 from matplotlib import pyplot as plt
 import pandas as pd
-
-
-###############################################################################
-######################### Class PerformanceEstimator ##########################
-###############################################################################
 
 class PerformanceEstimator:
     def __init__(self, tradingData):
         self.data = tradingData
 
-
     def computePnL(self):
         self.PnL = self.data["Money"][len(self.data)-1] - self.data["Money"][0]
         return self.PnL
-    
 
     def computeAnnualizedReturn(self):
-        # Compute the cumulative return over the entire trading horizon
         cumulativeReturn = self.data['Returns'].cumsum()
         cumulativeReturn = cumulativeReturn[len(cumulativeReturn)-1]
-        
-        # Compute the time elapsed (in days)
-        # print(self.data)
-        # self.data.index = pd.to_datetime(self.data.index,format="%Y-%m-%d",utc=True)
-        # start = self.data.index[0].to_pydatetime()
-        # end = self.data.index[len(self.data)-1].to_pydatetime() 
         start = self.data.index[0].to_pydatetime()
         end = self.data.index[len(self.data)-1].to_pydatetime() 
-        # print(self.data) 
-        print(start,end)  
-        print(type(start),type(end))
-           
         timeElapsed = end - start
-        # print(timeElapsed) 
         timeElapsed = timeElapsed.days
-        # print(timeElapsed.days) 
-
-        # Compute the Annualized Return
         if(cumulativeReturn > -1):
             self.annualizedReturn = 100 * (((1 + cumulativeReturn) ** (365/timeElapsed)) - 1)
         else:
             self.annualizedReturn = -100
         return self.annualizedReturn
-    
     
     def computeAnnualizedVolatility(self):
         self.annualizedVolatily = 100 * np.sqrt(252) * self.data['Returns'].std()
@@ -66,13 +32,8 @@ class PerformanceEstimator:
     
     
     def computeSharpeRatio(self, riskFreeRate=0):
-        # Compute the expected return
         expectedReturn = self.data['Returns'].mean()
-        
-        # Compute the returns volatility
         volatility = self.data['Returns'].std()
-        
-        # Compute the Sharpe Ratio (252 trading days in 1 year)
         if expectedReturn != 0 and volatility != 0:
             self.sharpeRatio = np.sqrt(252) * (expectedReturn - riskFreeRate)/volatility
         else:
