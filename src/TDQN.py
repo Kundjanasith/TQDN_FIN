@@ -655,7 +655,7 @@ class TDQN:
             # Testing performance
             marketSymbol = trainingEnv.marketSymbol
             startingDate = trainingEnv.endingDate
-            endingDate = trainingEnv.data['dateTime'][len(trainingEnv.data)-1]
+            endingDate = trainingEnv.data.index[len(trainingEnv.data)-1]
             money = trainingEnv.data['Money'][0]
             stateLength = trainingEnv.stateLength
             transactionCosts = trainingEnv.transactionCosts

@@ -3,7 +3,7 @@ import gym
 import numpy as np
 import importlib, math
 import matplotlib.pyplot as plt 
-
+import sys
 
 class TradingEnv(gym.Env):
     """
@@ -31,6 +31,11 @@ class TradingEnv(gym.Env):
     def __init__(self, data, marketSymbol, startingDate, endingDate, money, stateLength=30,
                  transactionCosts=0, startingPoint=0):
         self.data = data.copy()
+        if 'dateTime' in self.data.columns:
+            self.data = self.data[['dateTime','Open','High','Low','Close','Volume']]
+            self.data['Timestamp'] = self.data['dateTime']
+            self.data.drop(columns=['dateTime'],inplace=True)
+            self.data = self.data.set_index(['Timestamp'])
         # Interpolate in case of missing data
         self.data.replace(0.0, np.nan, inplace=True)
         # self.data.interpolate(method='linear', limit=5, limit_area='inside', inplace=True)
@@ -346,12 +351,12 @@ class Simulator:
         self.endingDate = self.data['dateTime'][len(self.data)-1]
         self.money = 100000
         # self.numberOfEpisodes = 50
-        self.numberOfEpisodes = 100
+        self.numberOfEpisodes = 50
         self.stateLength = 30
         self.observationSpace = 1 + (self.stateLength-1)*4
         self.actionSpace = 2
         self.percentageCosts = [0, 0.1, 0.2]
-        self.transactionCosts = self.percentageCosts[0]/100
+        self.transactionCosts = self.percentageCosts[1]/100
 
     def run(self):
         strategy = 'TDQN'
