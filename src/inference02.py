@@ -6,7 +6,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.filterwarnings("ignore")
 import matplotlib.pyplot as plt 
 import pandas as pd 
-
+import time 
 
 # def computerPerf(testingEnv):
 
@@ -115,10 +115,14 @@ def analyze2():
     data = pd.read_csv(filepath)
     data['dateTime'] = pd.to_datetime(data['dateTime'])
     startingDate = data['dateTime'][0]
-    splitingDate = '2023-01-01'
-    endingDate = data['dateTime'][len(data)-1]
+    # splitingDate = '2023-01-01'
+    # endingDate = data['dateTime'][len(data)-1]
+    endingDate = '2020-1-1'
+    splitingDate = '2018-1-1'
     stock = 'APPl'
     money = 100000
+    percentageCosts = [0, 0.1, 0.2]
+    transactionCosts = percentageCosts[0]/100
     testingEnv = TradingEnv(data, stock, splitingDate, endingDate, money, stateLength, transactionCosts)
     for i in range(50):
         tradingStrategy.loadModel('models3/%d'%i)
@@ -144,7 +148,8 @@ def analyze2():
                 
         ax1.legend(["Price", "Long",  "Short", "Train/Test separation"])
         ax2.legend(["Capital", "Long", "Short", "Train/Test separation"])
-        plt.show()
+        plt.savefig('inference02.png',bbox_inches='tight')
+        time.sleep(1)
 
 # analyze(50)
 analyze2()

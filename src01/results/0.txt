@@ -1,0 +1,2 @@
+PnL,annualizedReturn,annualizedVolatily,sharpeRatio,sortinoRatio,maxDD,maxDDD,profitability,averageProfitLossRatio,skewness
+15581.825165,13.900158,18.387036,0.766672,1.226018,14.316640,61.000000,46.666667,1.787063,0.202689
