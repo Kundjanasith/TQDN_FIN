@@ -608,7 +608,7 @@ class TDQN:
                     performanceTest.append(performance)
                     # self.writer.add_scalar('Testing performance (Sharpe Ratio)', performance, episode)
                     testingEnv.reset()
-                self.saveModel('models2/%d'%episode)
+                self.saveModel('models3/%d'%episode)
                     
         
         except KeyboardInterrupt:

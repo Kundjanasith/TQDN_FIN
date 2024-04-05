@@ -1,6 +1,6 @@
 import numpy as np
 from tabulate import tabulate
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 
 class PerformanceEstimator:
@@ -104,7 +104,6 @@ class PerformanceEstimator:
         self.skewness = self.data["Returns"].skew()
         return self.skewness
         
-    
     def computePerformance(self):
         self.computePnL()
         self.computeAnnualizedReturn()
@@ -124,45 +123,4 @@ class PerformanceEstimator:
                                  ["Profitability", "{0:.2f}".format(self.profitability) + '%'],
                                  ["Ratio Average Profit/Loss", "{0:.3f}".format(self.averageProfitLossRatio)],
                                  ["Skewness", "{0:.3f}".format(self.skewness)]]
-        return self.performanceTable
-
-    def computePerformance2(self):
-        self.computePnL()
-        self.computeAnnualizedReturn()
-        self.computeAnnualizedVolatility()
-        self.computeProfitability()
-        self.computeSharpeRatio()
-        self.computeSortinoRatio()
-        self.computeMaxDrawdown()
-        self.computeSkewness()
-        self.performanceTable = [["Profit & Loss (P&L)", "{0:.0f}".format(self.PnL)], 
-                                 ["Annualized Return", "{0:.2f}".format(self.annualizedReturn) + '%'],
-                                 ["Annualized Volatility", "{0:.2f}".format(self.annualizedVolatily) + '%'],
-                                 ["Sharpe Ratio", "{0:.3f}".format(self.sharpeRatio)],
-                                 ["Sortino Ratio", "{0:.3f}".format(self.sortinoRatio)],
-                                 ["Maximum Drawdown", "{0:.2f}".format(self.maxDD) + '%'],
-                                 ["Maximum Drawdown Duration", "{0:.0f}".format(self.maxDDD) + ' days'],
-                                 ["Profitability", "{0:.2f}".format(self.profitability) + '%'],
-                                 ["Ratio Average Profit/Loss", "{0:.3f}".format(self.averageProfitLossRatio)],
-                                 ["Skewness", "{0:.3f}".format(self.skewness)]]
         return self.PnL, self.annualizedReturn, self.annualizedVolatily, self.sharpeRatio, self.sortinoRatio, self.maxDD, self.maxDDD, self.profitability, self.averageProfitLossRatio, self.skewness
-    
-    def displayPerformance(self, name):
-        """
-        GOAL: Compute and display the entire set of performance indicators
-              in a table.
-        
-        INPUTS: - name: Name of the element (strategy or stock) analysed.
-        
-        OUTPUTS:    - performanceTable: Table summarizing the performance of 
-                                        a trading activity.
-        """
-        
-        # Generation of the performance table
-        self.computePerformance()
-        
-        # Display the table in the console (Tabulate for the beauty of the print operation)
-        headers = ["Performance Indicator", name]
-        tabulation = tabulate(self.performanceTable, headers, tablefmt="fancy_grid", stralign="center")
-        print(tabulation)
-    

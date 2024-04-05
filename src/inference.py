@@ -10,7 +10,7 @@ strategy = 'TDQN'
 strategyModule = importlib.import_module(str(strategy))
 className = getattr(strategyModule, strategy)
 tradingStrategy = className(observationSpace, actionSpace)
-tradingStrategy.loadModel('models/49')
+tradingStrategy.loadModel('models2/10')
 import pandas as pd 
 filepath = '../data/AAPL_2024_03_06_1D_stock_raw_v5_best.csv'
 data = pd.read_csv(filepath)
@@ -26,14 +26,14 @@ transactionCosts = percentageCosts[1]/100
 trainingEnv = TradingEnv(data, stock, startingDate, splitingDate, money, stateLength, transactionCosts)
 testingEnv = TradingEnv(data, stock, splitingDate, endingDate, money, stateLength, transactionCosts)
 
-from tradingPerformance import PerformanceEstimator
-testingEnv = tradingStrategy.testing2(testingEnv)
-p = PerformanceEstimator(testingEnv.data)
-p.displayPerformance('TDQN')
+# from tradingPerformance import PerformanceEstimator
+# testingEnv = tradingStrategy.testing2(testingEnv)
+# p = PerformanceEstimator(testingEnv.data)
+# p.displayPerformance('TDQN')
 
 
 
-"""
+
 # trainingEnv = tradingStrategy.testing(trainingEnv, trainingEnv)
 testingEnv = tradingStrategy.testing2(testingEnv)
 
@@ -55,17 +55,14 @@ testingEnv.data['Close'].plot(ax=ax1, color='blue', lw=2)
 ax1.plot(data.loc[data['Action'] == 1.0].index, data['Close'][data['Action'] == 1.0], '^', markersize=5, color='green')   
 ax1.plot(data.loc[data['Action'] == -1.0].index, data['Close'][data['Action'] == -1.0], 'v', markersize=5, color='red')
         
-# Plot the second graph -> Evolution of the trading capital
-# trainingEnv.data['Money'].plot(ax=ax2, color='blue', lw=2), label='_nolegend_'
 testingEnv.data['Money'].plot(ax=ax2, color='blue', lw=2) 
 ax2.plot(data.loc[data['Action'] == 1.0].index, data['Money'][data['Action'] == 1.0], '^', markersize=5, color='green')   
 ax2.plot(data.loc[data['Action'] == -1.0].index, data['Money'][data['Action'] == -1.0], 'v', markersize=5, color='red')
 
-# Plot the vertical line seperating the training and testing datasets
-ax1.axvline(pd.Timestamp(splitingDate), color='black', linewidth=2.0)
-ax2.axvline(pd.Timestamp(splitingDate), color='black', linewidth=2.0)
+# ax1.axvline(pd.Timestamp(splitingDate), color='black', linewidth=2.0)
+# ax2.axvline(pd.Timestamp(splitingDate), color='black', linewidth=2.0)
         
 ax1.legend(["Price", "Long",  "Short", "Train/Test separation"])
 ax2.legend(["Capital", "Long", "Short", "Train/Test separation"])
 plt.show()
-"""
+
