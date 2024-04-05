@@ -5,6 +5,7 @@ from rl_perf import PerformanceEstimator
 import random
 import sys
 capacity = 100000
+filterOrder = 5
 class ReplayMemory:
     def __init__(self, capacity=capacity):
         self.memory = deque(maxlen=capacity)
@@ -62,9 +63,11 @@ class DQN(tf.keras.Model):
         self.model.add(tf.keras.layers.LeakyReLU())
         self.model.add(tf.keras.layers.Dropout(dropout))
         self.model.add(tf.keras.layers.Dense(numberOfOutputs, activation='linear'))
-
-
-    def call(self, inputs):
+        
+    def get_model(self):
+        return self.model
+    
+    # def call(self, inputs):
         # print('TTTE>>>>')
         # print(len(inputs),len(inputs[0]))
         # # print(self.fc1.input_shape)
@@ -75,10 +78,10 @@ class DQN(tf.keras.Model):
         # x = self.dropout3(tf.nn.leaky_relu(self.bn3(self.fc3(x))))
         # x = self.dropout4(tf.nn.leaky_relu(self.bn4(self.fc4(x))))
         # output = self.fc5(x)
-        self.model.compile(optimizer='adam')
+        # self.model.compile(optimizer='adam')
         # print(self.model.summary())
         # print(self.model.input_shape, self.model.output_shape)
-        return self.model(np.array(inputs))
+        # return self.model(np.array(inputs))
     
 
 import numpy as np 
@@ -120,8 +123,8 @@ class temDQN:
         self.actionSpace = actionSpace
 
         # Set the two Deep Neural Networks of the DQN algorithm (policy and target)
-        self.policyNetwork = DQN(observationSpace, actionSpace, numberOfNeurons, dropout)
-        self.targetNetwork = DQN(observationSpace, actionSpace, numberOfNeurons, dropout)
+        self.policyNetwork = DQN(observationSpace, actionSpace, numberOfNeurons, dropout).get_model()
+        self.targetNetwork = DQN(observationSpace, actionSpace, numberOfNeurons, dropout).get_model()
         # self.targetNetwork.load_state_dict(self.policyNetwork.state_dict())
         self.targetNetwork.set_weights(self.policyNetwork.get_weights())
         # self.policyNetwork.eval()
@@ -263,7 +266,7 @@ class temDQN:
             # Compute the current Q values returned by the policy network
             with tf.GradientTape() as tape:
                 # print('>>',len(state),len(state[0]))
-                current_policy_output = self.policyNetwork(state)
+                current_policy_output = self.policyNetwork(np.array(state))
                 # print('current ', current_policy_output.shape)
                 # action_indices = tf.expand_dims(action, axis=1)
                 # print('action ', action_indices.shape, len(action))
@@ -273,11 +276,11 @@ class temDQN:
                 currentQValues = tf.squeeze(tf.gather(current_policy_output, action, axis=1))
 
                 # Compute the next Q values returned by the target network
-                next_policy_output = self.policyNetwork(nextState)
+                next_policy_output = self.policyNetwork(np.array(nextState))
                 nextActions = tf.argmax(next_policy_output, axis=1)
                 # next_action_indices = tf.expand_dims(nextActions, axis=1)
                 nextQValues = tf.squeeze(
-                    tf.gather(self.targetNetwork(nextState), nextActions, axis=1))
+                    tf.gather(self.targetNetwork(np.array(nextState)), nextActions, axis=1))
                 # print('>>>',done)
                 done = np.mean(done)
                 expectedQValues = reward + gamma * nextQValues * (1 - done)
@@ -375,7 +378,7 @@ class temDQN:
             # self.policyNetwork.eval()
 
         # Assess the algorithm performance on the training trading environment
-        trainingEnv = self.testing(trainingEnv, trainingEnv)
+        trainingEnv = self.testing(trainingEnv)
 
         # If required, print the strategy performance in a table
         # if showPerformance:
@@ -386,3 +389,38 @@ class temDQN:
         # self.writer.close()
         
         return trainingEnv
+    
+    def testing(self, testingEnv):
+        # Apply data augmentation techniques to process the testing set
+        splitingDate = testingEnv.startingDate
+        testingEnv.data = testingEnv.data[testingEnv.data.index>=splitingDate]
+        dataAugmentation = DataAugmentation()
+        testingEnvSmoothed = dataAugmentation.lowPassFilter(testingEnv, filterOrder)
+        # trainingEnv = dataAugmentation.lowPassFilter(trainingEnv, filterOrder)
+
+        # Initialization of some RL variables
+        coefficients = self.getNormalizationCoefficients(testingEnv)
+        state = self.processState(testingEnvSmoothed.reset(), coefficients)
+        testingEnv.reset()
+        QValues0 = []
+        QValues1 = []
+        done = 0
+
+        # Interact with the environment until the episode termination
+        while done == 0:
+
+            # Choose an action according to the RL policy and the current RL state
+            action, _, QValues = self.chooseAction(state)
+                
+            # Interact with the environment with the chosen action
+            nextState, _, done, _ = testingEnvSmoothed.step(action)
+            testingEnv.step(action)
+                
+            # Update the new state
+            state = self.processState(nextState, coefficients)
+
+            # Storing of the Q values
+            QValues0.append(QValues[0])
+            QValues1.append(QValues[1])
+        
+        return testingEnv

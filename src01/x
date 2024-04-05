@@ -1,0 +1,25 @@
+                Open      High       Low     Close     Volume
+Timestamp                                                    
+1980-12-15  0.122210  0.122210  0.121652  0.121652  175884800
+1980-12-16  0.113281  0.113281  0.112723  0.112723  105728000
+1980-12-17  0.115513  0.116071  0.115513  0.115513   86441600
+1980-12-18  0.118862  0.119420  0.118862  0.118862   73449600
+1980-12-19  0.126116  0.126674  0.126116  0.126116   48630400
+(10602, 5)
+(294, 5)
+<TradingEnv instance>
+Training progression (hardware selected => /cpu:0):
+  0%|          | 0/50 [00:00<?, ?it/s]  0%|          | 0/50 [00:56<?, ?it/s]
+
+WARNING: Training prematurely interrupted...
+
+Traceback (most recent call last):
+  File "/Users/tem/Desktop/TQDN_FIN/src01/main.py", line 28, in <module>
+    sim_train.run()
+  File "/Users/tem/Desktop/TQDN_FIN/src01/rl_sim.py", line 25, in run
+    trainingEnv = tradingStrategy.training(trainingEnv, trainingParameters=trainingParameters)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tem/Desktop/TQDN_FIN/src01/temDQN.py", line 380, in training
+    trainingEnv = self.testing(trainingEnv, trainingEnv)
+                  ^^^^^^^^^^^^
+AttributeError: 'temDQN' object has no attribute 'testing'

@@ -101,4 +101,50 @@ def analyze(ep_test=None):
     plt.plot(skewness_arr)
     plt.savefig('fig_inference02/skewness.png',bbox_inches='tight')
 
-analyze(50)
+import matplotlib.pyplot as plt
+
+def analyze2():
+    stateLength = 30
+    observationSpace = 1 + (stateLength-1)*4
+    actionSpace = 2
+    strategy = 'TDQN'
+    strategyModule = importlib.import_module(str(strategy))
+    className = getattr(strategyModule, strategy)
+    tradingStrategy = className(observationSpace, actionSpace)
+    filepath = '../data/AAPL_2024_03_06_1D_stock_raw_v5_best.csv'
+    data = pd.read_csv(filepath)
+    data['dateTime'] = pd.to_datetime(data['dateTime'])
+    startingDate = data['dateTime'][0]
+    splitingDate = '2023-01-01'
+    endingDate = data['dateTime'][len(data)-1]
+    stock = 'APPl'
+    money = 100000
+    testingEnv = TradingEnv(data, stock, splitingDate, endingDate, money, stateLength, transactionCosts)
+    for i in range(50):
+        tradingStrategy.loadModel('models3/%d'%i)
+        testingEnv = tradingStrategy.testing2(testingEnv)
+        plt.clf()
+        data = testingEnv.data
+        fig = plt.figure(figsize=(10, 8))
+        ax1 = fig.add_subplot(211, ylabel='Price', xlabel='Time')
+        ax2 = fig.add_subplot(212, ylabel='Capital', xlabel='Time')
+
+        # Plot the first graph -> Evolution of the stock market price
+        # trainingEnv.data['Close'].plot(ax=ax1, color='blue', lw=2), label='_nolegend_'
+        testingEnv.data['Close'].plot(ax=ax1, color='blue', lw=2) 
+        ax1.plot(data.loc[data['Action'] == 1.0].index, data['Close'][data['Action'] == 1.0], '^', markersize=5, color='green')   
+        ax1.plot(data.loc[data['Action'] == -1.0].index, data['Close'][data['Action'] == -1.0], 'v', markersize=5, color='red')
+                
+        testingEnv.data['Money'].plot(ax=ax2, color='blue', lw=2) 
+        ax2.plot(data.loc[data['Action'] == 1.0].index, data['Money'][data['Action'] == 1.0], '^', markersize=5, color='green')   
+        ax2.plot(data.loc[data['Action'] == -1.0].index, data['Money'][data['Action'] == -1.0], 'v', markersize=5, color='red')
+
+        # ax1.axvline(pd.Timestamp(splitingDate), color='black', linewidth=2.0)
+        # ax2.axvline(pd.Timestamp(splitingDate), color='black', linewidth=2.0)
+                
+        ax1.legend(["Price", "Long",  "Short", "Train/Test separation"])
+        ax2.legend(["Capital", "Long", "Short", "Train/Test separation"])
+        plt.show()
+
+# analyze(50)
+analyze2()
