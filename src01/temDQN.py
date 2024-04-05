@@ -215,7 +215,7 @@ class temDQN:
         # Check if an update is required (update frequency)
         if(self.iterations % targetNetworkUpdate == 0):
             # Transfer the DNN parameters (policy network -> target network)
-            self.targetNetwork.load_state_dict(self.policyNetwork.state_dict())
+            self.targetNetwork.load_weights(self.policyNetwork.get_weights())
 
 
     def chooseAction(self, state):
